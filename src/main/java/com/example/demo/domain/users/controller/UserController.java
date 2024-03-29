@@ -2,8 +2,8 @@ package com.example.demo.domain.users.controller;
 
 import com.example.demo.domain.users.dto.UserDto;
 import com.example.demo.domain.users.service.UsersService;
+import com.example.demo.utils.jwt.JwtToken;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,8 +14,12 @@ public class UserController {
 
     @PostMapping("/signup")
     public String signup(@RequestBody UserDto userDto){
-        System.out.println("adsf");
         return usersService.signup(userDto);
+    }
+    @PostMapping("/signin")
+    public JwtToken signin(@RequestBody UserDto userDto){
+        System.out.println(userDto);
+        return usersService.signIn(userDto.getUserId(),userDto.getPassword());
     }
     @GetMapping("/test")
     public String test(){

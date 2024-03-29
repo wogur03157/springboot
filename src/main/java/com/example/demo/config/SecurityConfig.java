@@ -1,5 +1,7 @@
 package com.example.demo.config;
 
+import com.example.demo.utils.jwt.JwtAuthenticationFilter;
+import com.example.demo.utils.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,28 +13,32 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.ErrorResponse;
 
 import java.io.PrintWriter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
-//    @Autowired
-//    private UserDetailsService userDetailsService;
 
+//    private final UserDetailsService userDetailsService;
+private final JwtTokenProvider jwtTokenProvider;
     @Bean
     public BCryptPasswordEncoder  bCryptPasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
     private static final String[] WHITE_LIST = {
-            "/users/**","/login","/","/signup","/excelCall","/*"
+            "/users/**","/login","/","/signup","/excelCall","/signin"
     };
 
     @Bean
@@ -41,7 +47,11 @@ public class SecurityConfig {
         http
                 .csrf((csrfConfig) ->
                         csrfConfig.disable()
-                ) // 1번
+                )
+                .sessionManagement(sessionManagement ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                // 1번
                 .headers((headerConfig) ->
                         headerConfig.frameOptions(frameOptionsConfig ->
                                 frameOptionsConfig.disable()
@@ -55,13 +65,14 @@ public class SecurityConfig {
                                 .anyRequest().authenticated()
                 )// 3번
                 .formLogin(formLogin -> {
-                    formLogin
-                            .loginPage("/login") // 로그인 페이지 링크
-                            .loginProcessingUrl("/loginProc")
-                            .defaultSuccessUrl("/test") // 로그인 성공 후 리다이렉트 주소
-                            .usernameParameter("userId")
-                            .passwordParameter("password");
+                    formLogin.disable();
+//                            .loginPage("/login") // 로그인 페이지 링크
+//                            .loginProcessingUrl("/loginProc")
+//                            .defaultSuccessUrl("/test") // 로그인 성공 후 리다이렉트 주소
+//                            .usernameParameter("userId")
+//                            .passwordParameter("password");
                 })
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> {
                     logout
                             .logoutSuccessUrl("/logout") // 로그아웃 성공시 리다이렉트 주소
@@ -71,6 +82,7 @@ public class SecurityConfig {
 //                .exceptionHandling((exceptionConfig) ->
 //                        exceptionConfig.authenticationEntryPoint(unauthorizedEntryPoint).accessDeniedHandler(accessDeniedHandler)
                 ); // 401 403 관련 예외처리
+        http.httpBasic(AbstractHttpConfigurer::disable);
         return http.build();
     }
     private final AuthenticationEntryPoint unauthorizedEntryPoint =

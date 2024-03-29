@@ -9,9 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
-@Table(name="users")
+@Table(name = "users",schema ="public")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -22,21 +23,38 @@ public class Users implements UserDetails {
     private Long userSeq;
     private String userId;
     private String password;
-    private String userRule;
     private LocalDateTime createDate;
+    //    @Override
+//    public Collection<? extends GrantedAuthority> getAuthorities() {
+//        List<GrantedAuthority> authorities = new ArrayList<>();
+//        authorities.add(new SimpleGrantedAuthority("ROLE_"+userRule));
+//        return authorities;
+//    }
+   private List<String> role;
+
+    public static Users userBuild(UserDto userDto) {
+        return Users.builder()
+                .userId(userDto.getUserId())
+                .password(userDto.getPassword())
+                .role(userDto.getRoles())
+                .createDate(LocalDateTime.now())
+                .build();
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_"+userRule));
-        return authorities;
+        return this.role.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
-    // 사용자의 id를 반환 (unique한 값)
+
+    // 사용자의 id를 반환 (unique 값)
     @Override
     public String getUsername() {
         return userId;
     }
 
-    // 사용자의 password를 반환
+    // 사용자의 password 반환
     @Override
     public String getPassword() {
         return password;
@@ -68,13 +86,5 @@ public class Users implements UserDetails {
     public boolean isEnabled() {
         // 계정이 사용 가능한지 확인하는 로직
         return true; // true -> 사용 가능
-    }
-    public static Users userBuild(UserDto userDto){
-        return Users.builder()
-                .userId(userDto.getUserId())
-                .password(userDto.getPassword())
-                .userRule(userDto.getUserRule())
-                .createDate(LocalDateTime.now())
-                .build();
     }
 }
