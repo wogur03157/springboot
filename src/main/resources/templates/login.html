@@ -7,15 +7,41 @@
 <body>
 <div style="text-align: center; margin-top: 50px;">
     <h2>Login</h2>
-    <form action="/signin" method="post">
+
         <label for="userId">Username:</label>
         <input type="text" id="userId" name="userId" required>
         <br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password" required>
         <br>
-        <button type="submit">Login</button>
-    </form>
+        <button id="login" type="button">Login</button>
+
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#login').click(function() {
+            var id=$("#userId").val();
+            var password=$("#password").val();
+            $.ajax({
+                type: 'POST',
+                url: '/signin',
+                data: JSON.stringify({"userId":id,"password":password}), // Serialize form data as JSON
+                contentType: 'application/json',
+                success: function(response) {
+                    // Handle success response
+                    console.log('Login successful');
+                    // Redirect to another page if needed
+                },
+                error: function(xhr, status, error) {
+                    // Handle error response
+                    console.error('Login failed:', error);
+                    // Optionally display an error message to the user
+                    alert('Login failed. Please try again.');
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

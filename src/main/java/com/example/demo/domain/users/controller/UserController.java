@@ -18,7 +18,6 @@ public class UserController {
     }
     @PostMapping("/signin")
     public JwtToken signin(@RequestBody UserDto userDto){
-        System.out.println(userDto);
         return usersService.signIn(userDto.getUserId(),userDto.getPassword());
     }
     @GetMapping("/test")

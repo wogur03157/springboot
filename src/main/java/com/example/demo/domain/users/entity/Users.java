@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users",schema ="public")
-@Getter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -30,20 +30,22 @@ public class Users implements UserDetails {
 //        authorities.add(new SimpleGrantedAuthority("ROLE_"+userRule));
 //        return authorities;
 //    }
-   private List<String> role;
+    private String role;
+
 
     public static Users userBuild(UserDto userDto) {
         return Users.builder()
                 .userId(userDto.getUserId())
                 .password(userDto.getPassword())
-                .role(userDto.getRoles())
+                .role(userDto.getRole())
                 .createDate(LocalDateTime.now())
                 .build();
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.role.stream()
+        List<String> roles = new ArrayList<>();
+        return roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

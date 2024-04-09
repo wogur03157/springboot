@@ -4,6 +4,7 @@ import com.example.demo.domain.users.entity.Users;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -15,14 +16,15 @@ public class UserDto {
     private Long userSeq;
     private String userId;
     private String password;
-    private List<String> roles;
+    private String role;
+    private List<String> roles = new ArrayList<>();
     private LocalDateTime createDate;
 
     public UserDto convertToDTO(Users users) {
         return UserDto.builder()
                 .userId(users.getUserId())
                 .password(users.getPassword())
-                .roles(users.getRole())
+                .role(users.getRole())
                 .build();
     }
 }

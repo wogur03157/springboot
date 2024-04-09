@@ -5,8 +5,6 @@ import com.example.demo.utils.jwt.JwtTokenProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -15,14 +13,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.ErrorResponse;
 
 import java.io.PrintWriter;
 
@@ -38,25 +33,27 @@ private final JwtTokenProvider jwtTokenProvider;
         return new BCryptPasswordEncoder();
     }
     private static final String[] WHITE_LIST = {
-            "/users/**","/login","/","/signup","/excelCall","/signin"
+            "/users/**","/login","/","/signup","/excelCall","/signin","/csvCall","/error","/jsonCall"
     };
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-                .csrf((csrfConfig) ->
-                        csrfConfig.disable()
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable
                 )
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 // 1번
-                .headers((headerConfig) ->
-                        headerConfig.frameOptions(frameOptionsConfig ->
-                                frameOptionsConfig.disable()
-                        )
-                )// 2번
+//                .headers((headerConfig) ->
+//                        headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable
+//                        )
+//                )// 2번
+//                .headers((headers)->
+//                        headers.contentTypeOptions(contentTypeOptionsConfig ->
+//                                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)))
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 .requestMatchers(WHITE_LIST).permitAll()
@@ -64,14 +61,6 @@ private final JwtTokenProvider jwtTokenProvider;
                                 .requestMatchers("/admin").hasRole("ADMIN")
                                 .anyRequest().authenticated()
                 )// 3번
-                .formLogin(formLogin -> {
-                    formLogin.disable();
-//                            .loginPage("/login") // 로그인 페이지 링크
-//                            .loginProcessingUrl("/loginProc")
-//                            .defaultSuccessUrl("/test") // 로그인 성공 후 리다이렉트 주소
-//                            .usernameParameter("userId")
-//                            .passwordParameter("password");
-                })
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> {
                     logout
@@ -82,7 +71,7 @@ private final JwtTokenProvider jwtTokenProvider;
 //                .exceptionHandling((exceptionConfig) ->
 //                        exceptionConfig.authenticationEntryPoint(unauthorizedEntryPoint).accessDeniedHandler(accessDeniedHandler)
                 ); // 401 403 관련 예외처리
-        http.httpBasic(AbstractHttpConfigurer::disable);
+
         return http.build();
     }
     private final AuthenticationEntryPoint unauthorizedEntryPoint =
