@@ -24,7 +24,7 @@ public class UserDto {
         return UserDto.builder()
                 .userId(users.getUserId())
                 .password(users.getPassword())
-                .role(users.getRole())
+                .roles(users.getRole())
                 .build();
     }
 }

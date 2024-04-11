@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -46,21 +47,13 @@ private final JwtTokenProvider jwtTokenProvider;
                 .sessionManagement(sessionManagement ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
-                // 1번
-//                .headers((headerConfig) ->
-//                        headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable
-//                        )
-//                )// 2번
-//                .headers((headers)->
-//                        headers.contentTypeOptions(contentTypeOptionsConfig ->
-//                                headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable)))
                 .authorizeHttpRequests((authorizeRequests) ->
                         authorizeRequests
                                 .requestMatchers(WHITE_LIST).permitAll()
                                 .requestMatchers("/test").hasAnyRole("USER","ADMIN")
                                 .requestMatchers("/admin").hasRole("ADMIN")
                                 .anyRequest().authenticated()
-                )// 3번
+                )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .logout(logout -> {
                     logout

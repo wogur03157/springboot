@@ -18,9 +18,4 @@ public class IndexController {
         return "/login";
     }
 
-    @RequestMapping(value = "/admin", method = RequestMethod.GET)
-    public String admin(Map<String, Object> model) {
-        return "/admin";
-    }
-
 }

@@ -26,11 +26,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     private UserDetails createUserDetails(Users users) {
-
         return User.builder()
                 .username(users.getUserId())
                 .password(users.getPassword())
-                .roles(users.getRole())
+                .roles(users.getRole().toArray(new String[0]))
                 .build();
     }
 }

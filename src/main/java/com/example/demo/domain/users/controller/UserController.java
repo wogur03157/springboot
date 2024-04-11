@@ -25,5 +25,10 @@ public class UserController {
         System.out.println("test");
         return "test";
     }
+    @GetMapping("/admin")
+    public String admin(){
+        System.out.println("admin");
+        return "admin";
+    }
 
 }

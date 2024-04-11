@@ -46,6 +46,7 @@ public class mongoController {
 //        String entityClassName = requestBody.get("entityClassName");
 //        Class<?> entityClass = Class.forName(entityClassName);
         long startTime = System.currentTimeMillis();
+        csvRender.exportCsv(res,JoinDto.class);
 //         csvRender.exportCsv(res,entityClass);
 //        csvRender.exportCsv(res,plbcContainerIoResultEntity.class);
 //        csvRender.exportCsv(res,plbcContainerIoResultDto.class);

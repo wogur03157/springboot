@@ -1,5 +1,6 @@
 package com.example.demo.utils.csv;
 
+import com.example.demo.domain.mogoTest.JoinDto;
 import com.example.demo.domain.mogoTest.plbcContainerIoResultDto;
 import com.opencsv.CSVWriter;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,10 +11,16 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -25,8 +32,8 @@ import java.util.zip.ZipOutputStream;
 @RequiredArgsConstructor
 public class CsvRender {
 
-    private final MongoTemplate mongoTemplate;
-
+//    private final MongoTemplate mongoTemplate;
+    private final JdbcTemplate jdbcTemplate;
 //    public void exportCsv(HttpServletResponse res, Class<?> entityClass) {
 //        int pageSize = 1000000; // 페이지 크기를 조절할 수 있음
 //        try {
@@ -131,30 +138,45 @@ public class CsvRender {
 
     private void writeData(CSVWriter writer, Class<?> entityClass, int pageSize)  {
         int page = 0;
-        while (true) {
+//        while (true) {
 //            Query query = new Query().limit(pageSize).skip(page * pageSize);
 //            List<?> entities = mongoTemplate.find(query, entityClass);
-            Aggregation aggregation = Aggregation.newAggregation(
-                    // $match: copionSeq가 null이 아닌 문서만 선택
-                    Aggregation.match(Criteria.where("copionSeq").ne(null)),
+//            Aggregation aggregation = Aggregation.newAggregation(
+//                    // $match: copionSeq가 null이 아닌 문서만 선택
+//                    Aggregation.match(Criteria.where("copionSeq").ne(null)),
+//
+//                    // $lookup: plbcContainerInOut 컬렉션과 조인
+//                    Aggregation.lookup("plbcContainerInOut", "copionSeq", "_id", "data"),
+//
+//                    // 페이징 처리
+//                    Aggregation.skip(page * pageSize),
+//                    Aggregation.limit(pageSize)
+//            );
+//            // Aggregation을 실행하고 결과를 페이징 처리하여 가져옴
+//            AggregationResults<?> results = mongoTemplate.aggregate(aggregation, "plbcContainerIoResult", plbcContainerIoResultDto.class);
+            String sqlQuery = "SELECT i.*, r.* FROM container_in_out i JOIN container_io_result r ON i.ctio_seq = r.copion_seq";
+        writer.writeAll(jdbcTemplate.query(sqlQuery, rs -> {
+            ResultSetMetaData metaData = rs.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            List<String[]> lines = new ArrayList<>();
+            while (rs.next()) {
+                String[] line = new String[columnCount];
+                for (int i = 0; i < columnCount; i++) {
+                    line[i] = rs.getString(i + 1);
+                }
+                lines.add(line);
+            }
+            return lines;
+        }));
 
-                    // $lookup: plbcContainerInOut 컬렉션과 조인
-                    Aggregation.lookup("plbcContainerInOut", "copionSeq", "_id", "data"),
+//            List<?> entities = results.getMappedResults();
+//            if (entities.isEmpty()) return; // No more data
 
-                    // 페이징 처리
-                    Aggregation.skip(page * pageSize),
-                    Aggregation.limit(pageSize)
-            );
-            // Aggregation을 실행하고 결과를 페이징 처리하여 가져옴
-            AggregationResults<?> results = mongoTemplate.aggregate(aggregation, "plbcContainerIoResult", plbcContainerIoResultDto.class);
-            List<?> entities = results.getMappedResults();
-            if (entities.isEmpty()) return; // No more data
-
-            Field[] fields=plbcContainerIoResultDto.class.getDeclaredFields();
-            List<String[]> csvLines = entities.stream()
-                    .map(entity -> getCsvLine(entity, fields))
-                    .collect(Collectors.toList());
-            writer.writeAll(csvLines);
+//            Field[] fields=JoinDto.class.getDeclaredFields();
+//            List<String[]> csvLines = entities.stream()
+//                    .map(entity -> getCsvLine(entity, fields))
+//                    .collect(Collectors.toList());
+//            writer.writeAll(entities);
 //            entities.stream()
 //                .map(entity -> getCsvLine(entity, entity.getClass().getDeclaredFields()))
 //                    .forEach(csvLine -> {
@@ -165,10 +187,10 @@ public class CsvRender {
 //                String[] csvLine = getCsvLine(entity, entityClass.getDeclaredFields());
 //                writer.writeNext(csvLine);
 //            }
-            page++;
-            System.out.println(page);
+//            page++;
+//            System.out.println(page);
 //            if (page >= 20) return; // Limit export to 100 pages
-        }
+//        }
     }
 
     private String[] getCsvLine(Object entity, Field[] fields) {

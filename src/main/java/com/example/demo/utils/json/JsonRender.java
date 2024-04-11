@@ -135,7 +135,7 @@ public void JoinToJSON(HttpServletResponse response, String collectionName) {
         try (OutputStream outputStream = response.getOutputStream()) {
 
             // Create SQL query to select joined data from multiple tables
-            String sqlQuery = "SELECT i.*, r.* FROM container_in_out i JOIN container_io_result r ON i.ctio_seq = r.copion_seq";
+           String sqlQuery = "SELECT i.*, r.* FROM container_in_out i JOIN container_io_result r ON i.ctio_seq = r.copion_seq";
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try (PreparedStatement statement = connection.prepareStatement(sqlQuery);
                      ResultSet resultSet = statement.executeQuery()) {

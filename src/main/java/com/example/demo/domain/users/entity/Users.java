@@ -24,28 +24,22 @@ public class Users implements UserDetails {
     private String userId;
     private String password;
     private LocalDateTime createDate;
-    //    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        List<GrantedAuthority> authorities = new ArrayList<>();
-//        authorities.add(new SimpleGrantedAuthority("ROLE_"+userRule));
-//        return authorities;
-//    }
-    private String role;
 
+    private List<String> role;
 
     public static Users userBuild(UserDto userDto) {
         return Users.builder()
                 .userId(userDto.getUserId())
                 .password(userDto.getPassword())
-                .role(userDto.getRole())
+                .role(userDto.getRoles())
                 .createDate(LocalDateTime.now())
                 .build();
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        List<String> roles = new ArrayList<>();
-        return roles.stream()
+    public Collection<? extends GrantedAuthority> getAuthorities()  {
+
+        return role.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
     }

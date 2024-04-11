@@ -38,11 +38,11 @@ public class JoinDto {
     private String rgstId;
     private String rgstDem;
     private String chgId;
-    private LocalDateTime chgDtm;
+    private String chgDtm;
     private String ctiorSeq;
     private String copionSeq;
     private String ctiorReusltSts;
-    private LocalDateTime ctiorResultDhms;
+    private String ctiorResultDhms;
     private String ctiorReusltSts2;
     private String ctiorReusltSts3;
     private String ctiorReusltSts4;
@@ -50,6 +50,6 @@ public class JoinDto {
     private String rgstId2;
     private String rgstDem2;
     private String chgId2;
-    private LocalDateTime chgDtm2;
+    private String chgDtm2;
 
 }
