@@ -34,7 +34,7 @@ private final JwtTokenProvider jwtTokenProvider;
         return new BCryptPasswordEncoder();
     }
     private static final String[] WHITE_LIST = {
-            "/users/**","/login","/","/signup","/excelCall","/signin","/csvCall","/error","/jsonCall"
+            "/users/**","/login","/","/signup","/excelCall","/signin","/csvCall","/error","/jsonCall","/export"
     };
 
     @Bean

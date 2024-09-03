@@ -154,7 +154,8 @@ public class CsvRender {
 //            );
 //            // Aggregation을 실행하고 결과를 페이징 처리하여 가져옴
 //            AggregationResults<?> results = mongoTemplate.aggregate(aggregation, "plbcContainerIoResult", plbcContainerIoResultDto.class);
-            String sqlQuery = "SELECT i.*, r.* FROM container_in_out i JOIN container_io_result r ON i.ctio_seq = r.copion_seq";
+//            String sqlQuery = "SELECT i.*, r.* FROM container_in_out i JOIN container_io_result r ON i.ctio_seq = r.copion_seq";
+        String sqlQuery = "SELECT * FROM container_io_result";
         writer.writeAll(jdbcTemplate.query(sqlQuery, rs -> {
             ResultSetMetaData metaData = rs.getMetaData();
             int columnCount = metaData.getColumnCount();

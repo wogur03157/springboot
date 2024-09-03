@@ -10,17 +10,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Session;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedWriter;
+import java.io.*;
+
 import org.bson.Document;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+
+import javax.sql.DataSource;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -128,21 +128,28 @@ public void JoinToJSON(HttpServletResponse response, String collectionName) {
     }
     private final EntityManager entityManager;
     private final ObjectMapper objectMapper;
-    public void exportJoinedDataToJSON(HttpServletResponse response) {
+    public void exportJoinedDataToJSON(HttpServletResponse response) throws IOException{
         response.setContentType("application/json; charset=UTF-8");
         response.setHeader("Content-Disposition", "attachment; filename=\"export.json\"");
+//        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE); // Set content type to octet-stream
+//        response.setHeader("Content-Disposition", "attachment; filename=\"export.json\""); // Set filename for download
 
         try (OutputStream outputStream = response.getOutputStream()) {
 
             // Create SQL query to select joined data from multiple tables
-           String sqlQuery = "SELECT i.*, r.* FROM container_in_out i JOIN container_io_result r ON i.ctio_seq = r.copion_seq";
+            String sqlQuery;
+//            if(sql){
+                sqlQuery="SELECT * FROM container_io_result";
+//            } else {
+//                sqlQuery = "SELECT i.*, r.* FROM container_in_out i JOIN container_io_result r ON i.ctio_seq = r.copion_seq";
+//            }
+
             entityManager.unwrap(Session.class).doWork(connection -> {
                 try (PreparedStatement statement = connection.prepareStatement(sqlQuery);
                      ResultSet resultSet = statement.executeQuery()) {
-
                     ResultSetMetaData metaData = resultSet.getMetaData();
                     int columnCount = metaData.getColumnCount();
-                    int batchSize = 1000000; // Adjust batch size as needed
+                    int batchSize = 10000; // Adjust batch size as needed
 
                     boolean firstRow = true;
                     while (resultSet.next()) {
@@ -169,9 +176,9 @@ public void JoinToJSON(HttpServletResponse response, String collectionName) {
                     e.printStackTrace();
                 }
             });
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }
+
+
+

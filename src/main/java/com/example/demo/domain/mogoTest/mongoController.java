@@ -2,14 +2,18 @@ package com.example.demo.domain.mogoTest;
 
 import com.example.demo.utils.csv.CsvRender;
 import com.example.demo.utils.excel.ExcelRender;
+import com.example.demo.utils.json.DataExporter;
 import com.example.demo.utils.json.JsonRender;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
 @RestController
@@ -19,8 +23,9 @@ public class mongoController {
     private final ExcelRender excelRender;
     private final CsvRender csvRender;
     private final JsonRender jsonRender;
+private final DataExporter dataExporter;
     @GetMapping(value = "/excelCall")
-    public void excelCall(HttpServletResponse res,@RequestBody(required = false) Map<String, String> requestBody) throws Exception {
+    public void excelCall(HttpServletResponse res, @RequestBody(required = false) Map<String, String> requestBody) throws Exception {
 //        String entityClassName = requestBody.get("entityClassName");
 //        Class<?> entityClass = Class.forName(entityClassName);
 
@@ -59,11 +64,14 @@ public class mongoController {
     @GetMapping(value = "/jsonCall")
     public void jsonCall(HttpServletResponse res,@RequestBody(required = false) Map<String, String> requestBody) throws Exception {
 //        String entityClassName = requestBody.get("entityClassName");
+
         long startTime = System.currentTimeMillis();
 
 //        jsonRender.exportToJSON(res,"plbcContainerIoResult");
 //        jsonRender.JoinToJSON(res,"plbcContainerIoResult");
-        jsonRender.exportJoinedDataToJSON(res);
+
+//        jsonRender.exportJoinedDataToJSON(res);
+        dataExporter.exportDataToJson(res);
         long endTime = System.currentTimeMillis();
         long totalTimeMillis = endTime - startTime;
         System.out.println("Total json time taken: " + totalTimeMillis + " milliseconds");

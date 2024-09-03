@@ -2,9 +2,192 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Query Builder</title>
+    <style>
+        /* Add styles for the revised layout */
+        .query-builder {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .join-form,
+        .query-preview,
+        .query-execution {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #666;
+        }
+
+        .select-table,
+        .select-join-type,
+        .select-column,
+        .join-condition-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            appearance: none;
+        }
+
+        .add-condition-btn,
+        .generate-query-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #4caf50;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .add-condition-btn:hover,
+        .generate-query-btn:hover {
+            background-color: #45a049;
+        }
+
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+    </style>
 </head>
 <body>
-<div>HELLO WORLD!</div>
+<div class="query-builder">
+    <h1 class="title">Join Query Builder</h1>
+    <div class="join-form">
+        <div class="form-group">
+            <label for="table1Select">Select First Table:</label>
+            <select id="table1Select" class="select-table">
+                <!-- Options for tables will be populated dynamically -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="joinTypeSelect">Select Join Type:</label>
+            <select id="joinTypeSelect" class="select-join-type">
+                <option value="INNER">INNER JOIN</option>
+                <option value="LEFT">LEFT JOIN</option>
+                <option value="RIGHT">RIGHT JOIN</option>
+                <option value="FULL">FULL OUTER JOIN</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="table2Select">Select Second Table:</label>
+            <select id="table2Select" class="select-table">
+                <!-- Options for tables will be populated dynamically -->
+            </select>
+        </div>
+
+        <!-- Add input fields for columns -->
+        <div class="form-group">
+            <label for="column1Select">Select Columns from First Table:</label>
+            <select id="column1Select" multiple class="select-column">
+                <!-- Options for columns will be populated dynamically -->
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="column2Select">Select Columns from Second Table:</label>
+            <select id="column2Select" multiple class="select-column">
+                <!-- Options for columns will be populated dynamically -->
+            </select>
+        </div>
+
+        <button type="button" class="add-condition-btn">Add Join Condition</button>
+
+        <div class="join-conditions">
+            <!-- Join conditions will be displayed here -->
+        </div>
+
+        <button type="button" class="generate-query-btn">Generate Query</button>
+    </div>
+
+    <div class="query-preview">
+        <h2 class="section-title">Query Preview</h2>
+        <div class="preview-query">
+            <!-- Preview of the generated query will be displayed here -->
+        </div>
+    </div>
+
+    <div class="query-execution">
+        <h2 class="section-title">Query Execution</h2>
+        <div class="execution-status">
+            <!-- Execution status and results will be displayed here -->
+        </div>
+    </div>
+</div>
+
+<script >document.addEventListener("DOMContentLoaded", function() {
+    // Dummy data for demonstration
+    const dummyColumns = {
+        table1: ["column1", "column2", "column3"],
+        table2: ["column4", "column5", "column6"]
+    };
+
+    // Function to add columns dynamically based on selected tables
+    function addColumns(tableId, columnSelectId) {
+        const tableSelect = document.getElementById(tableId);
+        const columnSelect = document.getElementById(columnSelectId);
+        const selectedTable = tableSelect.value;
+        const columns = dummyColumns[selectedTable]; // Get columns for the selected table
+        // Clear previous options
+        columnSelect.innerHTML = "";
+        // Populate select options with columns
+        columns.forEach(column => {
+            const option = document.createElement("option");
+            option.value = column;
+            option.textContent = column;
+            columnSelect.appendChild(option);
+        });
+    }
+
+    // Event listener for adding columns dynamically
+    table1Select.addEventListener("change", function() {
+        addColumns("table1Select", "column1Select");
+    });
+
+    table2Select.addEventListener("change", function() {
+        addColumns("table2Select", "column2Select");
+    });
+
+    // Function to add join conditions dynamically
+    function addJoinCondition() {
+        const joinConditions = document.querySelector(".join-conditions");
+        const conditionInput = document.createElement("input");
+        conditionInput.type = "text";
+        conditionInput.className = "join-condition-input";
+        conditionInput.placeholder = "Join Condition (e.g., table1.column = table2.column)";
+        joinConditions.appendChild(conditionInput);
+    }
+
+    // Event listener for adding join conditions dynamically
+    const addConditionBtn = document.querySelector(".add-condition-btn");
+    addConditionBtn.addEventListener("click", addJoinCondition);
+});</script>
 </body>
 </html>

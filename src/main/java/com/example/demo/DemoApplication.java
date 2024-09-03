@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication
 @EnableMongoRepositories
-@RequiredArgsConstructor
 @ComponentScan("com.example")
 public class DemoApplication  {
 	public static void main(String[] args) {
